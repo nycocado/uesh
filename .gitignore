@@ -1,0 +1,11 @@
+# Compilação
+bin/
+obj/
+*.o
+*.out
+
+# Editor/OS
+.vscode/
+.idea/
+.DS_Store
+*.swp

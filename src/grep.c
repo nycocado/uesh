@@ -1,6 +1,4 @@
-#define _GNU_SOURCE
 #include "common.h"
-#include <getopt.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,11 +10,11 @@
  */
 typedef struct
 {
-        bool count_only;       // -c: Reportar apenas o número de ocorrências
-        bool line_numbers;     // -n: Mostrar o número da linha
-        bool case_insensitive; // -i: Ignorar maiúsculas/minúsculas
-        bool inverse;          // -v: Mostrar linhas que NÃO contêm a string
-        bool multiple_files;   // Controle interno para exibir nome do ficheiro
+    bool count_only;       // -c: Reportar apenas o número de ocorrências
+    bool line_numbers;     // -n: Mostrar o número da linha
+    bool case_insensitive; // -i: Ignorar maiúsculas/minúsculas
+    bool inverse;          // -v: Mostrar linhas que NÃO contêm a string
+    bool multiple_files;   // Controle interno para exibir nome do ficheiro
 } GrepOptions;
 
 /**
@@ -56,18 +54,17 @@ grep_file(const char* filename, const char* pattern, const GrepOptions* opts)
     }
 
     char* line = NULL;
-    size_t len = 0;
     int line_num = 0;
     int matches = 0;
 
-    while (getline(&line, &len, fp) != -1)
+    while ((line = line_read(fp)) != NULL)
     {
         line_num++;
         bool found = false;
 
         if (opts->case_insensitive)
         {
-            found = (strcasestr(line, pattern) != NULL);
+            found = (str_case_find(line, pattern) != NULL);
         }
         else
         {
@@ -92,9 +89,10 @@ grep_file(const char* filename, const char* pattern, const GrepOptions* opts)
                 {
                     printf("%d:", line_num);
                 }
-                printf("%s", line);
+                printf("%s\n", line);
             }
         }
+        free(line);
     }
 
     if (opts->count_only)
@@ -106,7 +104,6 @@ grep_file(const char* filename, const char* pattern, const GrepOptions* opts)
         printf("%d\n", matches);
     }
 
-    free(line);
     fclose(fp);
     return matches;
 }
@@ -120,10 +117,10 @@ grep_file(const char* filename, const char* pattern, const GrepOptions* opts)
 int main(int argc, char* argv[])
 {
     program_name = argv[0];
-    int opt;
     GrepOptions opts = {0};
+    char opt;
 
-    while ((opt = getopt(argc, argv, "cnivh")) != -1)
+    while ((opt = next_option(argc, argv, "cnivh")) != '\0')
     {
         switch (opt)
         {
@@ -147,13 +144,13 @@ int main(int argc, char* argv[])
         }
     }
 
-    if (optind >= argc)
+    if (opt_index >= argc)
     {
         usage("STRING [FICHEIROS]");
     }
 
-    const char* pattern = argv[optind++];
-    int num_files = argc - optind;
+    const char* pattern = argv[opt_index++];
+    int num_files = argc - opt_index;
     opts.multiple_files = (num_files > 1);
 
     if (num_files == 0)
@@ -162,10 +159,11 @@ int main(int argc, char* argv[])
     }
 
     int total_matches = 0;
-    for (int i = optind; i < argc; i++)
+    for (int i = opt_index; i < argc; i++)
     {
         total_matches += grep_file(argv[i], pattern, &opts);
     }
 
     return (total_matches > 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
+

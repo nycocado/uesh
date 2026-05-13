@@ -1,7 +1,5 @@
-#define _GNU_SOURCE
+#define _POSIX_C_SOURCE 200809L
 #include "common.h"
-#include <ctype.h>
-#include <getopt.h>
 #include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -17,9 +15,9 @@
  */
 typedef struct
 {
-        bool report_count; // -c: Reportar número de substituições realizadas
-        bool show_line_num;    // -n: Indicar número da linha afetada
-        bool case_insensitive; // -i: Ignorar maiúsculas/minúsculas
+    bool report_count;     // -c: Reportar número de substituições realizadas
+    bool show_line_num;    // -n: Indicar número da linha afetada
+    bool case_insensitive; // -i: Ignorar maiúsculas/minúsculas
 } ReplaceOptions;
 
 /**
@@ -37,38 +35,6 @@ static void print_usage(void)
            "houve a substituição.\n");
     printf("-i: Ignora maiúsculas e minúsculas durante a busca.\n");
     printf("-h: Apresenta esta ajuda e sai imediatamente.\n");
-}
-
-/**
- * @brief Realiza a busca case-insensitive de uma substring.
- *
- * @param haystack A string onde será feita a busca.
- * @param needle A substring a ser encontrada.
- * @return Um ponteiro para o início da substring encontrada, ou NULL se não
- * encontrada.
- */
-static char* strcasestr_custom(const char* haystack, const char* needle)
-{
-    if (!*needle)
-        return (char*)haystack;
-    for (; *haystack; haystack++)
-    {
-        if (toupper((unsigned char)*haystack) ==
-            toupper((unsigned char)*needle))
-        {
-            const char* h = haystack;
-            const char* n = needle;
-            while (*h && *n &&
-                   toupper((unsigned char)*h) == toupper((unsigned char)*n))
-            {
-                h++;
-                n++;
-            }
-            if (!*n)
-                return (char*)haystack;
-        }
-    }
-    return NULL;
 }
 
 /**
@@ -112,11 +78,10 @@ static void process_file(
     }
 
     char* line = NULL;
-    size_t len = 0;
     int line_num = 0;
     int total_subs = 0;
 
-    while (getline(&line, &len, fp) != -1)
+    while ((line = line_read(fp)) != NULL)
     {
         line_num++;
         char* current_pos = line;
@@ -127,7 +92,7 @@ static void process_file(
             char* pos;
             if (opts->case_insensitive)
             {
-                pos = strcasestr_custom(current_pos, old_str);
+                pos = str_case_find(current_pos, old_str);
             }
             else
             {
@@ -147,16 +112,17 @@ static void process_file(
         }
 
         fputs(current_pos, tmp_fp);
+        fputc('\n', tmp_fp);
 
         if (line_modified && opts->show_line_num)
         {
-            printf("[%s] %d:%s", filename, line_num, line);
+            printf("[%s] %d:%s\n", filename, line_num, line);
         }
+        free(line);
     }
 
     fclose(fp);
     fclose(tmp_fp);
-    free(line);
 
     if (rename(tmp_name, filename) != 0)
     {
@@ -179,10 +145,10 @@ static void process_file(
 int main(int argc, char* argv[])
 {
     program_name = argv[0];
-    int opt;
     ReplaceOptions opts = {0};
+    char opt;
 
-    while ((opt = getopt(argc, argv, "cnih")) != -1)
+    while ((opt = next_option(argc, argv, "cnih")) != '\0')
     {
         switch (opt)
         {
@@ -203,14 +169,14 @@ int main(int argc, char* argv[])
         }
     }
 
-    if (argc - optind < 2)
+    if (argc - opt_index < 2)
     {
         usage("[OPÇÕES] STRING-ORG STRING-DEST [FICHEIROS]");
     }
 
-    const char* old_str = argv[optind++];
-    const char* new_str = argv[optind++];
-    int num_files = argc - optind;
+    const char* old_str = argv[opt_index++];
+    const char* new_str = argv[opt_index++];
+    int num_files = argc - opt_index;
 
     if (num_files == 0)
     {
@@ -218,13 +184,13 @@ int main(int argc, char* argv[])
     }
 
     int children_created = 0;
-    for (int i = optind; i < argc; i++)
+    while (opt_index < argc)
     {
         pid_t pid = fork();
 
         if (pid == 0)
         {
-            process_file(argv[i], old_str, new_str, &opts);
+            process_file(argv[opt_index], old_str, new_str, &opts);
             exit(EXIT_SUCCESS);
         }
         else if (pid < 0)
@@ -235,11 +201,12 @@ int main(int argc, char* argv[])
         {
             children_created++;
         }
+        opt_index++;
     }
 
     int status;
     bool all_success = true;
-    for (int i = 0; i < children_created; i++)
+    for (int j = 0; j < children_created; j++)
     {
         wait(&status);
         if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
@@ -250,3 +217,4 @@ int main(int argc, char* argv[])
 
     return all_success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
+

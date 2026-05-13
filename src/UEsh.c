@@ -1,4 +1,4 @@
-#define _GNU_SOURCE
+#define _XOPEN_SOURCE 700
 #include "common.h"
 #include <limits.h>
 #include <stdbool.h>
@@ -9,15 +9,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#ifndef HOST_NAME_MAX
-#define HOST_NAME_MAX 255
-#endif
-
-#ifndef PATH_MAX
-#define PATH_MAX 4096
-#endif
-
-#define MAX_LINE 1024
 #define MAX_ARGS 64
 
 /**
@@ -95,20 +86,19 @@ static void print_prompt(void)
 }
 
 /**
- * @brief Lê de forma segura uma linha inteira fornecida pelo utilizador.
- * @param line Ponteiro onde será armazenada a string de entrada.
- * @param max_len Limite máximo de bytes da linha.
+ * @brief Lê de forma segura uma linha inteira fornecida pelo utilizador usando
+ * line_read.
+ * @param line Ponteiro para o ponteiro da string.
  * @return true caso tenha lido com sucesso; false caso encontre EOF.
  */
-static bool read_line(char* line, size_t max_len)
+static bool read_line(char** line)
 {
-    if (fgets(line, max_len, stdin) == NULL)
+    if (*line)
     {
-        printf("\n");
-        return false;
+        free(*line);
     }
-    line[strcspn(line, "\n")] = '\0';
-    return true;
+    *line = line_read(stdin);
+    return (*line != NULL);
 }
 
 /**
@@ -192,13 +182,15 @@ static void builtin_sleep(char** args)
 /**
  * @brief Verifica e processa comandos built-in (cd, pwd, echo, sleep, exit).
  * @param args A lista de argumentos do input de usuário.
+ * @param running Ponteiro para flag de execução do loop principal.
  * @return true se era comando interno, false se era comando externo.
  */
-static bool execute_builtin(char** args)
+static bool execute_builtin(char** args, bool* running)
 {
     if (strcmp(args[0], "exit") == 0)
     {
-        exit(EXIT_SUCCESS);
+        *running = false;
+        return true;
     }
     if (strcmp(args[0], "cd") == 0)
     {
@@ -265,23 +257,32 @@ int main(int argc, char* argv[])
 {
     program_name = argv[0];
 
-    if (argc > 1 && strcmp(argv[1], "-h") == 0)
+    if (argc > 1)
     {
-        print_usage();
-        return EXIT_SUCCESS;
+        if (strcmp(argv[1], "-h") == 0)
+        {
+            print_usage();
+            return EXIT_SUCCESS;
+        }
+        else
+        {
+            usage("");
+        }
     }
 
     setup_environment(argv[0]);
 
-    char line[MAX_LINE];
+    char* line = NULL;
     char* args[MAX_ARGS];
+    bool running = true;
 
-    while (1)
+    while (running)
     {
         print_prompt();
 
-        if (!read_line(line, sizeof(line)))
+        if (!read_line(&line))
         {
+            printf("\n");
             break;
         }
 
@@ -290,11 +291,12 @@ int main(int argc, char* argv[])
             continue;
         }
 
-        if (!execute_builtin(args))
+        if (!execute_builtin(args, &running))
         {
             execute_external(args);
         }
     }
 
+    free(line);
     return EXIT_SUCCESS;
 }

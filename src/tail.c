@@ -24,12 +24,10 @@ static void print_usage(void)
     printf("Uso: %s [OPÇÕES] [FICHEIRO]...\n", program_name);
     printf("Objetivo: Lista as últimas linhas de um ficheiro de texto para o "
            "stdout.\n");
-    printf("Opções:\n");
-    printf("  -n         : lista número da linha\n");
-    printf("  -E         : indica fim de linha ($ no fim de cada linha)\n");
-    printf("  -\"numero\"  : lista as últimas \"número\" de linhas (ex: -20)\n"
-    );
-    printf("  -h         : apresenta esta ajuda e sai imediatamente\n");
+    printf("-n: Lista número da linha.\n");
+    printf("-E: Indica fim de linha ($ no fim de cada linha).\n");
+    printf("-\"numero\": Lista as últimas \"número\" de linhas (ex: -20).\n");
+    printf("-h: Apresenta esta ajuda e sai imediatamente.\n");
 }
 
 /**
@@ -122,32 +120,16 @@ int main(int argc, char* argv[])
     program_name = argv[0];
     TailOptions opts = {10, false, false};
 
-    // Parsing para suportar -NUM e flags padrão
-    while (opt_index < argc && argv[opt_index][0] == '-' &&
-           strcmp(argv[opt_index], "-") != 0)
+    char opt;
+    while ((opt = next_option(argc, argv, "nEh#")) != '\0')
     {
-        if (strcmp(argv[opt_index], "--") == 0)
-        {
-            opt_index++;
-            break;
-        }
-
-        // Caso especial: -10, -20, etc.
-        if (isdigit(argv[opt_index][1]))
-        {
-            opts.num_lines = atoi(&argv[opt_index][1]);
-            if (opts.num_lines <= 0)
-                opts.num_lines = 1;
-            opt_index++;
-            continue;
-        }
-
-        char opt = next_option(argc, argv, "nEh");
-        if (opt == '\0')
-            break;
-
         switch (opt)
         {
+            case '#':
+                opts.num_lines = atoi(opt_arg);
+                if (opts.num_lines <= 0)
+                    opts.num_lines = 1;
+                break;
             case 'n':
                 opts.show_line_num = true;
                 break;

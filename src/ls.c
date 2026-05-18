@@ -214,11 +214,9 @@ int main(int argc, char** argv)
                 opts.long_format = true;
                 break;
             case 'o':
-                // Suporte para -on, -os, -od
-                if (argv[opt_index] && argv[opt_index][0] == '-' &&
-                    argv[opt_index][1] == 'o')
+                if (opt_arg)
                 {
-                    char mode = argv[opt_index][2];
+                    char mode = opt_arg[0];
                     if (mode == 'n' || mode == 's' || mode == 'd')
                     {
                         opts.sort_by = mode;
@@ -231,6 +229,9 @@ int main(int argc, char** argv)
             case 'h':
                 print_usage();
                 return EXIT_SUCCESS;
+            case ':':
+                usage("Falta argumento para a opção -o");
+                break;
             default:
                 usage("[-l] [-ox] [-c] [CAMINHO]");
         }

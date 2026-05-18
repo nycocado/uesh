@@ -24,21 +24,27 @@ int main(int argc, char** argv)
 {
     program_name = argv[0];
 
-    // Verifica se foi passado pelo menos um argumento (o PID)
-    if (argc < 2)
+    char opt;
+    while ((opt = next_option(argc, argv, "h")) != '\0')
+    {
+        switch (opt)
+        {
+            case 'h':
+                print_usage();
+                return EXIT_SUCCESS;
+            default:
+                usage("PID");
+        }
+    }
+
+    // Verifica se foi passado o PID após as opções
+    if (opt_index >= argc)
     {
         usage("PID");
     }
 
-    // Suporte ao requisito global -h
-    if (argv[1][0] == '-' && argv[1][1] == 'h')
-    {
-        print_usage();
-        return EXIT_SUCCESS;
-    }
-
     // Converte o argumento para PID
-    pid_t pid = (pid_t)atoi(argv[1]);
+    pid_t pid = (pid_t)atoi(argv[opt_index]);
     if (pid <= 0)
     {
         error_msg("PID inválido. Deve ser um número inteiro positivo.");

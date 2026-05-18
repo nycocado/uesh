@@ -50,6 +50,12 @@ void error_msg(const char* msg);
 extern int opt_index;
 
 /**
+ * @brief Guarda o valor do argumento de uma opção, caso exista (semelhante ao
+ * optarg).
+ */
+extern char* opt_arg;
+
+/**
  * @brief Processa o próximo caractere de opção no argv.
  * @param argc Número de argumentos.
  * @param argv Array de argumentos.

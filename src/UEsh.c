@@ -110,10 +110,10 @@ static bool read_line(char** line)
 static int parse_line(char* line, char** args)
 {
     int i = 0;
-    args[i] = strtok(line, " ");
+    args[i] = strtok(line, " \t\n");
     while (args[i] != NULL && i < MAX_ARGS - 1)
     {
-        args[++i] = strtok(NULL, " ");
+        args[++i] = strtok(NULL, " \t\n");
     }
     args[i] = NULL;
     return i;
@@ -257,16 +257,16 @@ int main(int argc, char* argv[])
 {
     program_name = argv[0];
 
-    if (argc > 1)
+    char opt;
+    while ((opt = next_option(argc, argv, "h")) != '\0')
     {
-        if (strcmp(argv[1], "-h") == 0)
+        switch (opt)
         {
-            print_usage();
-            return EXIT_SUCCESS;
-        }
-        else
-        {
-            usage("");
+            case 'h':
+                print_usage();
+                return EXIT_SUCCESS;
+            default:
+                usage("");
         }
     }
 

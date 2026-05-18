@@ -17,10 +17,9 @@ static void print_usage(void)
 {
     printf("Uso: %s [OPÇÕES] ORIGEM DESTINO\n", program_name);
     printf("Objetivo: Efetua a cópia de ficheiros.\n");
-    printf("Opções:\n");
-    printf("  -i : modo interativo - pergunta antes de apagar o destino caso "
+    printf("-i: Modo interativo - pergunta antes de apagar o destino caso "
            "ele exista.\n");
-    printf("  -h : apresenta esta ajuda e sai imediatamente.\n");
+    printf("-h: Apresenta esta ajuda e sai imediatamente.\n");
 }
 
 /**
@@ -127,20 +126,9 @@ int main(int argc, char* argv[])
     program_name = argv[0];
     bool interactive = false;
 
-    // Parsing para suportar as flags padrão
-    while (opt_index < argc && argv[opt_index][0] == '-' &&
-           strcmp(argv[opt_index], "-") != 0)
+    char opt;
+    while ((opt = next_option(argc, argv, "ih")) != '\0')
     {
-        if (strcmp(argv[opt_index], "--") == 0)
-        {
-            opt_index++;
-            break;
-        }
-
-        char opt = next_option(argc, argv, "ih");
-        if (opt == '\0')
-            break;
-
         switch (opt)
         {
             case 'i':

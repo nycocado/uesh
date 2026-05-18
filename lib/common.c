@@ -6,7 +6,8 @@
 #include <string.h>
 
 char* program_name = "program";
-int opt_index = 1; // Começa no primeiro argumento após o nome do programa
+int opt_index = 1;    // Começa no primeiro argumento após o nome do programa
+char* opt_arg = NULL; // Guarda o valor do argumento da flag, se houver
 static int char_idx =
     1; // Índice do caractere dentro de um grupo de flags (ex: -abc)
 
@@ -73,8 +74,10 @@ char* line_read(FILE* stream)
 
 char next_option(int argc, char* argv[], const char* optstring)
 {
+    opt_arg = NULL;
+
     if (opt_index >= argc || argv[opt_index][0] != '-' ||
-        strcmp(argv[opt_index], "-") == 0)
+        argv[opt_index][1] == '\0')
     {
         return '\0';
     }
@@ -85,18 +88,63 @@ char next_option(int argc, char* argv[], const char* optstring)
         return '\0';
     }
 
-    char c = argv[opt_index][char_idx];
-
-    if (strchr(optstring, c) == NULL)
+    // Suporte para flags numéricas (ex: -10) se a optstring contiver '#'
+    if (isdigit(argv[opt_index][1]) && strchr(optstring, '#') != NULL)
     {
+        opt_arg =
+            &argv[opt_index][1]; // opt_arg aponta para o número (ex: "10")
+        opt_index++;
+        return '#'; // Retorna o caractere especial
+    }
+
+    char c = argv[opt_index][char_idx];
+    const char* ptr = strchr(optstring, c);
+
+    if (ptr == NULL)
+    {
+        char_idx++;
+        if (argv[opt_index][char_idx] == '\0')
+        {
+            opt_index++;
+            char_idx = 1;
+        }
         return '?';
     }
 
-    char_idx++;
-    if (argv[opt_index][char_idx] == '\0')
+    // Verifica se a opção exige um argumento (indicado por ':')
+    if (ptr[1] == ':')
     {
-        opt_index++;
-        char_idx = 1;
+        if (argv[opt_index][char_idx + 1] != '\0')
+        {
+            // Argumento colado à flag (ex: -on ou -oN)
+            opt_arg = &argv[opt_index][char_idx + 1];
+            opt_index++;
+            char_idx = 1;
+        }
+        else if (opt_index + 1 < argc)
+        {
+            // Argumento separado por espaço (ex: -o n)
+            opt_arg = argv[opt_index + 1];
+            opt_index += 2;
+            char_idx = 1;
+        }
+        else
+        {
+            // Erro: Faltou o argumento
+            opt_index++;
+            char_idx = 1;
+            return ':';
+        }
+    }
+    else
+    {
+        // Opção normal sem argumento
+        char_idx++;
+        if (argv[opt_index][char_idx] == '\0')
+        {
+            opt_index++;
+            char_idx = 1;
+        }
     }
 
     return c;

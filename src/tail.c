@@ -11,9 +11,9 @@
  */
 typedef struct
 {
-    int num_lines;      // Número de linhas a exibir (padrão 10)
-    bool show_line_num; // -n: Mostrar o número da linha original
-    bool show_end_line; // -E: Mostrar $ no fim de cada linha
+        int num_lines;      // Número de linhas a exibir (padrão 10)
+        bool show_line_num; // -n: Mostrar o número da linha original
+        bool show_end_line; // -E: Mostrar $ no fim de cada linha
 } TailOptions;
 
 /**
@@ -22,20 +22,24 @@ typedef struct
 static void print_usage(void)
 {
     printf("Uso: %s [OPÇÕES] [FICHEIRO]...\n", program_name);
-    printf("Objetivo: Lista as últimas linhas de um ficheiro de texto para o stdout.\n");
+    printf("Objetivo: Lista as últimas linhas de um ficheiro de texto para o "
+           "stdout.\n");
     printf("Opções:\n");
     printf("  -n         : lista número da linha\n");
     printf("  -E         : indica fim de linha ($ no fim de cada linha)\n");
-    printf("  -\"numero\"  : lista as últimas \"número\" de linhas (ex: -20)\n");
+    printf("  -\"numero\"  : lista as últimas \"número\" de linhas (ex: -20)\n"
+    );
     printf("  -h         : apresenta esta ajuda e sai imediatamente\n");
 }
 
 /**
- * @brief Processa o comando tail num fluxo de entrada usando um buffer circular.
+ * @brief Processa o comando tail num fluxo de entrada usando um buffer
+ * circular.
  * @param fp Ponteiro para o ficheiro ou stdin.
  * @param filename Nome do ficheiro (para o cabeçalho).
  * @param opts Opções de configuração.
- * @param print_header Se deve imprimir o nome do ficheiro (múltiplos ficheiros).
+ * @param print_header Se deve imprimir o nome do ficheiro (múltiplos
+ * ficheiros).
  */
 static void process_tail(
     FILE* fp,
@@ -52,7 +56,7 @@ static void process_tail(
     // Aloca um array para guardar os ponteiros das linhas (buffer circular)
     char** buffer = calloc(opts->num_lines, sizeof(char*));
     int* line_numbers = calloc(opts->num_lines, sizeof(int));
-    
+
     if (!buffer || !line_numbers)
     {
         die("falha ao alocar memória para o buffer");
@@ -66,8 +70,9 @@ static void process_tail(
     while ((current_line = line_read(fp)) != NULL)
     {
         total_lines_read++;
-        
-        // Se a posição já tinha uma linha (buffer cheio), liberta a memória antiga
+
+        // Se a posição já tinha uma linha (buffer cheio), liberta a memória
+        // antiga
         if (buffer[index])
         {
             free(buffer[index]);
@@ -75,19 +80,20 @@ static void process_tail(
 
         buffer[index] = current_line;
         line_numbers[index] = total_lines_read;
-        
+
         // Avança o índice de forma circular
         index = (index + 1) % opts->num_lines;
     }
 
     // Determina onde começar a imprimir (a linha mais antiga no buffer)
     int start_index = total_lines_read > opts->num_lines ? index : 0;
-    int lines_to_print = total_lines_read > opts->num_lines ? opts->num_lines : total_lines_read;
+    int lines_to_print =
+        total_lines_read > opts->num_lines ? opts->num_lines : total_lines_read;
 
     for (int i = 0; i < lines_to_print; i++)
     {
         int current_idx = (start_index + i) % opts->num_lines;
-        
+
         if (opts->show_line_num)
         {
             printf("%d ", line_numbers[current_idx]);
@@ -130,7 +136,8 @@ int main(int argc, char* argv[])
         if (isdigit(argv[opt_index][1]))
         {
             opts.num_lines = atoi(&argv[opt_index][1]);
-            if (opts.num_lines <= 0) opts.num_lines = 1;
+            if (opts.num_lines <= 0)
+                opts.num_lines = 1;
             opt_index++;
             continue;
         }

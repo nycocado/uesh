@@ -1,8 +1,9 @@
-#define _GNU_SOURCE
+#define _DEFAULT_SOURCE
 #include "common.h"
 #include <dirent.h>
 #include <grp.h>
 #include <pwd.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,50 +12,80 @@
 #include <time.h>
 #include <unistd.h>
 
+/**
+ * @struct FileInfo
+ * @brief Metadados básicos de um ficheiro para ordenação e listagem.
+ */
 typedef struct
 {
-    char name[256];
-    off_t size;
-    time_t mtime;
+        char name[256];
+        off_t size;
+        time_t mtime;
 } FileInfo;
 
+/**
+ * @struct LsOptions
+ * @brief Opções de configuração do utilitário ls.
+ */
 typedef struct
 {
-    bool long_format;
-    char sort_by; // 'n' name, 's' size, 'd' date
-    bool columns;
+        bool long_format; // -l: Listagem detalhada
+        char sort_by;     // 'n': nome, 's': tamanho, 'd': data
+        bool columns;     // -c: Listagem em colunas
 } LsOptions;
 
+// Variável global auxiliar para o comparador do qsort (evita qsort_r
+// não-standard)
+static char current_sort_mode = 'n';
+
+/**
+ * @brief Exibe a ajuda integrada do utilitário ls (requisito -h).
+ */
 static void print_usage(void)
 {
     printf("Uso: %s [OPÇÕES] [CAMINHO]\n", program_name);
-    printf("Objetivo: Lista os nomes dos ficheiros contidos no diretório indicado no CAMINHO.\n");
-    printf("Opções:\n");
-    printf("  -l    : listagem longa com indicação de nome, dimensão e data do ficheiro\n");
-    printf("  -on   : ordena por nome (padrão)\n");
-    printf("  -os   : ordena por dimensão\n");
-    printf("  -od   : ordena por data\n");
-    printf("  -c    : listagem por colunas\n");
-    printf("  -h    : apresenta esta ajuda e sai imediatamente\n");
+    printf("Objetivo: Lista os nomes dos ficheiros contidos no diretório "
+           "indicado no CAMINHO.\n");
+    printf("-l: Listagem longa com indicação de nome, dimensão e data.\n");
+    printf("-on: Ordena o output por nome.\n");
+    printf("-os: Ordena o output por dimensão.\n");
+    printf("-od: Ordena o output por data.\n");
+    printf("-c: Listagem por colunas.\n");
+    printf("-h: Apresenta esta ajuda e sai imediatamente.\n");
 }
 
-static int compare_files(const void* a, const void* b, void* sort_by)
+/**
+ * @brief Função de comparação para o qsort baseada no critério selecionado.
+ */
+static int compare_files(const void* a, const void* b)
 {
     const FileInfo* fa = (const FileInfo*)a;
     const FileInfo* fb = (const FileInfo*)b;
-    char mode = *(char*)sort_by;
 
-    if (mode == 's')
+    if (current_sort_mode == 's')
     {
-        return (fb->size - fa->size); // Descendente por tamanho
+        if (fb->size > fa->size)
+            return 1;
+        if (fb->size < fa->size)
+            return -1;
+        return 0;
     }
-    else if (mode == 'd')
+    else if (current_sort_mode == 'd')
     {
-        return (fb->mtime - fa->mtime); // Descendente por data
+        if (fb->mtime > fa->mtime)
+            return 1;
+        if (fb->mtime < fa->mtime)
+            return -1;
+        return 0;
     }
-    return strcmp(fa->name, fb->name); // Ascendente por nome
+    return strcmp(fa->name, fb->name);
 }
 
+/**
+ * @brief Imprime metadados detalhados de um ficheiro (formato longo).
+ * @param path Caminho do diretório pai.
+ * @param name Nome do ficheiro.
+ */
 static void print_long(const char* path, const char* name)
 {
     char full_path[1024];
@@ -78,18 +109,24 @@ static void print_long(const char* path, const char* name)
         "%s %s %8ld %s %s\n",
         pw ? pw->pw_name : "unknown",
         gr ? gr->gr_name : "unknown",
-        st.st_size,
+        (long)st.st_size,
         time_buf,
         name
     );
 }
 
+/**
+ * @brief Lista o conteúdo de um diretório aplicando ordenação e formatação.
+ * @param path Caminho do diretório.
+ * @param opts Opções configuradas.
+ */
 static void list_dir(const char* path, const LsOptions* opts)
 {
     DIR* dir = opendir(path);
     if (!dir)
     {
-        die(path);
+        warn(path);
+        return;
     }
 
     FileInfo* files = NULL;
@@ -98,11 +135,20 @@ static void list_dir(const char* path, const LsOptions* opts)
 
     while ((entry = readdir(dir)) != NULL)
     {
+        // Ignorar ficheiros ocultos por padrão
         if (entry->d_name[0] == '.')
             continue;
 
-        files = realloc(files, sizeof(FileInfo) * (count + 1));
+        FileInfo* tmp = realloc(files, sizeof(FileInfo) * (count + 1));
+        if (!tmp)
+        {
+            closedir(dir);
+            die("erro de memória no ls");
+        }
+        files = tmp;
+
         strncpy(files[count].name, entry->d_name, 255);
+        files[count].name[255] = '\0';
 
         char full_path[1024];
         snprintf(full_path, sizeof(full_path), "%s/%s", path, entry->d_name);
@@ -112,13 +158,20 @@ static void list_dir(const char* path, const LsOptions* opts)
             files[count].size = st.st_size;
             files[count].mtime = st.st_mtime;
         }
+        else
+        {
+            files[count].size = 0;
+            files[count].mtime = 0;
+        }
         count++;
     }
     closedir(dir);
 
-    // Qsort_r não é padrão em todo o lado, usamos qsort simples com variável estática ou passamos o modo
-    char sort_mode = opts->sort_by;
-    qsort_r(files, count, sizeof(FileInfo), (int (*)(const void *, const void *, void *))compare_files, &sort_mode);
+    current_sort_mode = opts->sort_by;
+    if (count > 0)
+    {
+        qsort(files, count, sizeof(FileInfo), compare_files);
+    }
 
     for (int i = 0; i < count; i++)
     {
@@ -137,12 +190,16 @@ static void list_dir(const char* path, const LsOptions* opts)
             printf("%s\n", files[i].name);
         }
     }
+
     if (opts->columns && count % 4 != 0)
         printf("\n");
 
     free(files);
 }
 
+/**
+ * @brief Ponto de entrada do utilitário ls.
+ */
 int main(int argc, char** argv)
 {
     program_name = argv[0];
@@ -157,15 +214,15 @@ int main(int argc, char** argv)
                 opts.long_format = true;
                 break;
             case 'o':
-                // next_option não suporta argumentos de opção facilmente na sua lib.
-                // Vou assumir que o usuário digita -on, -os, -od colado.
-                // Como a sua next_option processa char a char:
-                // Se o usuário passar -ox, o 'o' é capturado aqui, e o 'x' será o próximo.
-                // Precisamos de uma pequena correção na lógica para ler o próximo char.
-                if (argv[opt_index][2] != '\0') {
-                    opts.sort_by = argv[opt_index][2];
-                    // Avança para o próximo argumento pois consumimos o sub-char manualmente
-                    opt_index++;
+                // Suporte para -on, -os, -od
+                if (argv[opt_index] && argv[opt_index][0] == '-' &&
+                    argv[opt_index][1] == 'o')
+                {
+                    char mode = argv[opt_index][2];
+                    if (mode == 'n' || mode == 's' || mode == 'd')
+                    {
+                        opts.sort_by = mode;
+                    }
                 }
                 break;
             case 'c':

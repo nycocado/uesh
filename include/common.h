@@ -15,7 +15,8 @@ char* str_case_find(const char* haystack, const char* needle);
 /**
  * @brief Lê uma linha completa de um ficheiro com alocação dinâmica manual.
  * @param stream O ficheiro ou fluxo de entrada (stdin).
- * @return Ponteiro para a linha lida (deve ser libertado com free) ou NULL em caso de erro ou EOF.
+ * @return Ponteiro para a linha lida (deve ser libertado com free) ou NULL em
+ * caso de erro ou EOF.
  */
 char* line_read(FILE* stream);
 
@@ -53,7 +54,8 @@ extern int opt_index;
  * @param argc Número de argumentos.
  * @param argv Array de argumentos.
  * @param optstring String contendo os caracteres de opção válidos.
- * @return O caractere da opção encontrada, '?' para opção inválida, ou '\0' quando terminarem as opções.
+ * @return O caractere da opção encontrada, '?' para opção inválida, ou '\0'
+ * quando terminarem as opções.
  */
 char next_option(int argc, char* argv[], const char* optstring);
 

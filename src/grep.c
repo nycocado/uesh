@@ -10,11 +10,11 @@
  */
 typedef struct
 {
-    bool count_only;       // -c: Reportar apenas o número de ocorrências
-    bool line_numbers;     // -n: Mostrar o número da linha
-    bool case_insensitive; // -i: Ignorar maiúsculas/minúsculas
-    bool inverse;          // -v: Mostrar linhas que NÃO contêm a string
-    bool multiple_files;   // Controle interno para exibir nome do ficheiro
+        bool count_only;       // -c: Reportar apenas o número de ocorrências
+        bool line_numbers;     // -n: Mostrar o número da linha
+        bool case_insensitive; // -i: Ignorar maiúsculas/minúsculas
+        bool inverse;          // -v: Mostrar linhas que NÃO contêm a string
+        bool multiple_files;   // Controle interno para exibir nome do ficheiro
 } GrepOptions;
 
 /**
@@ -166,4 +166,3 @@ int main(int argc, char* argv[])
 
     return (total_matches > 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
-

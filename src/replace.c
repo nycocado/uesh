@@ -15,9 +15,9 @@
  */
 typedef struct
 {
-    bool report_count;     // -c: Reportar número de substituições realizadas
-    bool show_line_num;    // -n: Indicar número da linha afetada
-    bool case_insensitive; // -i: Ignorar maiúsculas/minúsculas
+        bool report_count; // -c: Reportar número de substituições realizadas
+        bool show_line_num;    // -n: Indicar número da linha afetada
+        bool case_insensitive; // -i: Ignorar maiúsculas/minúsculas
 } ReplaceOptions;
 
 /**
@@ -217,4 +217,3 @@ int main(int argc, char* argv[])
 
     return all_success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
-

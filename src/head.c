@@ -11,9 +11,9 @@
  */
 typedef struct
 {
-    int num_lines;     // Número de linhas a exibir (padrão 10)
-    bool show_line_num; // -n: Mostrar o número da linha
-    bool show_end_line; // -E: Mostrar $ no fim de cada linha
+        int num_lines;      // Número de linhas a exibir (padrão 10)
+        bool show_line_num; // -n: Mostrar o número da linha
+        bool show_end_line; // -E: Mostrar $ no fim de cada linha
 } HeadOptions;
 
 /**
@@ -27,7 +27,9 @@ static void print_usage(void)
     printf("Opções:\n");
     printf("  -n         : lista número da linha\n");
     printf("  -E         : indica fim de linha ($ no fim de cada linha)\n");
-    printf("  -\"numero\"  : lista as primeiras \"número\" de linhas (ex: -20)\n");
+    printf(
+        "  -\"numero\"  : lista as primeiras \"número\" de linhas (ex: -20)\n"
+    );
     printf("  -h         : apresenta esta ajuda e sai imediatamente\n");
 }
 
@@ -36,7 +38,8 @@ static void print_usage(void)
  * @param fp Ponteiro para o ficheiro ou stdin.
  * @param filename Nome do ficheiro (para o cabeçalho).
  * @param opts Opções de configuração.
- * @param print_header Se deve imprimir o nome do ficheiro (múltiplos ficheiros).
+ * @param print_header Se deve imprimir o nome do ficheiro (múltiplos
+ * ficheiros).
  */
 static void process_head(
     FILE* fp,

@@ -18,7 +18,8 @@ static void print_usage(void)
     printf("Uso: %s [OPÇÕES] ORIGEM DESTINO\n", program_name);
     printf("Objetivo: Efetua a cópia de ficheiros.\n");
     printf("Opções:\n");
-    printf("  -i : modo interativo - pergunta antes de apagar o destino caso ele exista.\n");
+    printf("  -i : modo interativo - pergunta antes de apagar o destino caso "
+           "ele exista.\n");
     printf("  -h : apresenta esta ajuda e sai imediatamente.\n");
 }
 
@@ -34,7 +35,8 @@ static bool file_exists(const char* filepath)
 }
 
 /**
- * @brief Pergunta ao utilizador se deseja reescrever um ficheiro existente (modo interativo).
+ * @brief Pergunta ao utilizador se deseja reescrever um ficheiro existente
+ * (modo interativo).
  * @param filepath Nome do ficheiro destino.
  * @return true se o utilizador responder 'y' ou 'Y', false caso contrário.
  */
@@ -44,10 +46,12 @@ static bool ask_overwrite(const char* filepath)
     fflush(stdout);
 
     char response = getchar();
-    
-    // Limpa o resto da linha no buffer de entrada para evitar bugs nas próximas leituras
+
+    // Limpa o resto da linha no buffer de entrada para evitar bugs nas próximas
+    // leituras
     int c;
-    while ((c = getchar()) != '\n' && c != EOF);
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
 
     return (response == 'y' || response == 'Y');
 }
@@ -67,7 +71,7 @@ static bool copy_file(const char* src_path, const char* dst_path)
         return false;
     }
 
-    // Abre o destino em modo de escrita. 
+    // Abre o destino em modo de escrita.
     // Se não existir (O_CREAT), cria com permissões rw-r--r-- (0644).
     // Se existir (O_TRUNC), apaga o conteúdo antigo.
     int fd_dst = open(dst_path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -85,11 +89,14 @@ static bool copy_file(const char* src_path, const char* dst_path)
     while ((bytes_read = read(fd_src, buffer, BUFFER_SIZE)) > 0)
     {
         ssize_t total_written = 0;
-        
-        // Garante que todo o bloco lido é escrito (importante para ficheiros grandes)
+
+        // Garante que todo o bloco lido é escrito (importante para ficheiros
+        // grandes)
         while (total_written < bytes_read)
         {
-            bytes_written = write(fd_dst, buffer + total_written, bytes_read - total_written);
+            bytes_written = write(
+                fd_dst, buffer + total_written, bytes_read - total_written
+            );
             if (bytes_written < 0)
             {
                 warn(dst_path);
@@ -156,7 +163,8 @@ int main(int argc, char* argv[])
     const char* src_path = argv[opt_index];
     const char* dst_path = argv[opt_index + 1];
 
-    // Se o modo interativo estiver ativo e o destino já existir, pergunta ao utilizador
+    // Se o modo interativo estiver ativo e o destino já existir, pergunta ao
+    // utilizador
     if (interactive && file_exists(dst_path))
     {
         if (!ask_overwrite(dst_path))

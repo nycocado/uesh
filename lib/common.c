@@ -6,8 +6,9 @@
 #include <string.h>
 
 char* program_name = "program";
-int opt_index = 1;     // Começa no primeiro argumento após o nome do programa
-static int char_idx = 1; // Índice do caractere dentro de um grupo de flags (ex: -abc)
+int opt_index = 1; // Começa no primeiro argumento após o nome do programa
+static int char_idx =
+    1; // Índice do caractere dentro de um grupo de flags (ex: -abc)
 
 char* str_case_find(const char* haystack, const char* needle)
 {
@@ -16,7 +17,8 @@ char* str_case_find(const char* haystack, const char* needle)
 
     for (; *haystack; haystack++)
     {
-        if (tolower((unsigned char)*haystack) == tolower((unsigned char)*needle))
+        if (tolower((unsigned char)*haystack) ==
+            tolower((unsigned char)*needle))
         {
             const char *h, *n;
             for (h = haystack, n = needle; *h && *n; h++, n++)

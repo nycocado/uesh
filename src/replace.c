@@ -11,17 +11,17 @@
 
 /**
  * @struct ReplaceOptions
- * @brief Agrupa as opções de configuração do utilitário replace.
+ * @brief Configuration options for the replace utility.
  */
 typedef struct
 {
-        bool report_count; // -c: Reportar número de substituições realizadas
-        bool show_line_num;    // -n: Indicar número da linha afetada
-        bool case_insensitive; // -i: Ignorar maiúsculas/minúsculas
+        bool report_count; // -c: report the number of substitutions made
+        bool show_line_num;    // -n: show the affected line number
+        bool case_insensitive; // -i: ignore case
 } ReplaceOptions;
 
 /**
- * @brief Exibe a ajuda integrada do utilitário replace (requisito -h).
+ * @brief Prints the built-in help for the replace utility (-h flag).
  */
 static void print_usage(void)
 {
@@ -38,11 +38,11 @@ static void print_usage(void)
 }
 
 /**
- * @brief Processa a substituição de strings em um único ficheiro.
- * @param filename O nome do ficheiro a processar.
- * @param old_str A string original a ser substituída.
- * @param new_str A nova string.
- * @param opts Opções de configuração.
+ * @brief Processes string replacement in a single file.
+ * @param filename Name of the file to process.
+ * @param old_str The string to replace.
+ * @param new_str The replacement string.
+ * @param opts Configuration options.
  */
 static void process_file(
     const char* filename,
@@ -137,10 +137,10 @@ static void process_file(
 }
 
 /**
- * @brief Ponto de entrada do utilitário replace.
- * @param argc O número de argumentos vindos do terminal.
- * @param argv Os apontadores de char contendo as flags e argumentos.
- * @return EXIT_SUCCESS se concluído com sucesso, EXIT_FAILURE caso contrário.
+ * @brief Entry point for the replace utility.
+ * @param argc Argument count from the terminal.
+ * @param argv Argument array with flags and arguments.
+ * @return EXIT_SUCCESS on success, EXIT_FAILURE otherwise.
  */
 int main(int argc, char* argv[])
 {

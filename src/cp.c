@@ -11,7 +11,7 @@
 #define BUFFER_SIZE 4096
 
 /**
- * @brief Exibe a ajuda integrada do utilitário cp (requisito -h).
+ * @brief Prints the built-in help for the cp utility (-h flag).
  */
 static void print_usage(void)
 {
@@ -23,9 +23,9 @@ static void print_usage(void)
 }
 
 /**
- * @brief Verifica se um ficheiro já existe no sistema.
- * @param filepath Caminho do ficheiro a verificar.
- * @return true se o ficheiro existir, false caso contrário.
+ * @brief Checks whether a file exists on the filesystem.
+ * @param filepath Path to the file to check.
+ * @return true if the file exists, false otherwise.
  */
 static bool file_exists(const char* filepath)
 {
@@ -34,10 +34,10 @@ static bool file_exists(const char* filepath)
 }
 
 /**
- * @brief Pergunta ao utilizador se deseja reescrever um ficheiro existente
- * (modo interativo).
- * @param filepath Nome do ficheiro destino.
- * @return true se o utilizador responder 'y' ou 'Y', false caso contrário.
+ * @brief Asks the user whether to overwrite an existing file (interactive
+ * mode).
+ * @param filepath Destination filename.
+ * @return true if the user answers 'y' or 'Y', false otherwise.
  */
 static bool ask_overwrite(const char* filepath)
 {
@@ -46,8 +46,7 @@ static bool ask_overwrite(const char* filepath)
 
     char response = getchar();
 
-    // Limpa o resto da linha no buffer de entrada para evitar bugs nas próximas
-    // leituras
+    // flush the rest of the input line to avoid stale input on next reads
     int c;
     while ((c = getchar()) != '\n' && c != EOF)
         ;
@@ -56,10 +55,10 @@ static bool ask_overwrite(const char* filepath)
 }
 
 /**
- * @brief Realiza a cópia física dos dados entre a origem e o destino.
- * @param src_path Caminho do ficheiro original.
- * @param dst_path Caminho do ficheiro destino.
- * @return true se a cópia foi bem sucedida, false em caso de erro.
+ * @brief Copies data from source to destination.
+ * @param src_path Source file path.
+ * @param dst_path Destination file path.
+ * @return true if the copy succeeded, false on error.
  */
 static bool copy_file(const char* src_path, const char* dst_path)
 {
@@ -70,9 +69,8 @@ static bool copy_file(const char* src_path, const char* dst_path)
         return false;
     }
 
-    // Abre o destino em modo de escrita.
-    // Se não existir (O_CREAT), cria com permissões rw-r--r-- (0644).
-    // Se existir (O_TRUNC), apaga o conteúdo antigo.
+    // open destination for writing; O_CREAT creates it (0644) if absent,
+    // O_TRUNC clears existing content.
     int fd_dst = open(dst_path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (fd_dst < 0)
     {
@@ -84,13 +82,13 @@ static bool copy_file(const char* src_path, const char* dst_path)
     char buffer[BUFFER_SIZE];
     ssize_t bytes_read, bytes_written;
 
-    // Loop de leitura e escrita em blocos
+    // read-write loop in chunks
     while ((bytes_read = read(fd_src, buffer, BUFFER_SIZE)) > 0)
     {
         ssize_t total_written = 0;
 
-        // Garante que todo o bloco lido é escrito (importante para ficheiros
-        // grandes)
+        // ensure every byte of the read chunk is written (important for large
+        // files)
         while (total_written < bytes_read)
         {
             bytes_written = write(
@@ -119,7 +117,7 @@ static bool copy_file(const char* src_path, const char* dst_path)
 }
 
 /**
- * @brief Ponto de entrada do utilitário cp.
+ * @brief Entry point for the cp utility.
  */
 int main(int argc, char* argv[])
 {
@@ -142,7 +140,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    // Verifica se temos exatamente ORIGEM e DESTINO (2 argumentos obrigatórios)
+    // ensure exactly SOURCE and DEST are provided (2 required arguments)
     if (argc - opt_index != 2)
     {
         usage("[-i] ORIGEM DESTINO");
@@ -151,18 +149,17 @@ int main(int argc, char* argv[])
     const char* src_path = argv[opt_index];
     const char* dst_path = argv[opt_index + 1];
 
-    // Se o modo interativo estiver ativo e o destino já existir, pergunta ao
-    // utilizador
+    // if interactive mode is on and the destination exists, ask the user
     if (interactive && file_exists(dst_path))
     {
         if (!ask_overwrite(dst_path))
         {
-            // O utilizador disse não. Termina com sucesso sem fazer nada.
+            // user declined; exit successfully without doing anything
             return EXIT_SUCCESS;
         }
     }
 
-    // Efetua a cópia e verifica se ocorreu erro
+    // perform the copy and check for errors
     if (!copy_file(src_path, dst_path))
     {
         return EXIT_FAILURE;

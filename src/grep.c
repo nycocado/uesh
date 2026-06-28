@@ -6,19 +6,19 @@
 
 /**
  * @struct GrepOptions
- * @brief Agrupa as opções de configuração do utilitário grep.
+ * @brief Configuration options for the grep utility.
  */
 typedef struct
 {
-        bool count_only;       // -c: Reportar apenas o número de ocorrências
-        bool line_numbers;     // -n: Mostrar o número da linha
-        bool case_insensitive; // -i: Ignorar maiúsculas/minúsculas
-        bool inverse;          // -v: Mostrar linhas que NÃO contêm a string
-        bool multiple_files;   // Controle interno para exibir nome do ficheiro
+        bool count_only;       // -c: report only the match count
+        bool line_numbers;     // -n: show line numbers
+        bool case_insensitive; // -i: ignore case
+        bool inverse;          // -v: show lines that do NOT contain the string
+        bool multiple_files;   // internal flag to prefix filename in output
 } GrepOptions;
 
 /**
- * @brief Exibe a ajuda integrada do utilitário grep (requisito -h).
+ * @brief Prints the built-in help for the grep utility (-h flag).
  */
 static void print_usage(void)
 {
@@ -37,11 +37,11 @@ static void print_usage(void)
 }
 
 /**
- * @brief Processa a busca de uma string dentro de um ficheiro.
- * @param filename Nome do ficheiro a processar.
- * @param pattern String a procurar.
- * @param opts Opções de configuração.
- * @return O número de ocorrências encontradas.
+ * @brief Searches for a pattern in a file.
+ * @param filename Name of the file to search.
+ * @param pattern String to search for.
+ * @param opts Configuration options.
+ * @return Number of matches found.
  */
 static int
 grep_file(const char* filename, const char* pattern, const GrepOptions* opts)
@@ -109,10 +109,10 @@ grep_file(const char* filename, const char* pattern, const GrepOptions* opts)
 }
 
 /**
- * @brief Ponto de entrada do utilitário grep.
- * @param argc O número de argumentos vindos do terminal.
- * @param argv Os apontadores de char contendo as flags e argumentos.
- * @return EXIT_SUCCESS se encontrar ocorrências, EXIT_FAILURE caso contrário.
+ * @brief Entry point for the grep utility.
+ * @param argc Argument count from the terminal.
+ * @param argv Argument array with flags and arguments.
+ * @return EXIT_SUCCESS if matches are found, EXIT_FAILURE otherwise.
  */
 int main(int argc, char* argv[])
 {

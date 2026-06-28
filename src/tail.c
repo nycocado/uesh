@@ -7,17 +7,17 @@
 
 /**
  * @struct TailOptions
- * @brief Agrupa as opções de configuração do utilitário tail.
+ * @brief Configuration options for the tail utility.
  */
 typedef struct
 {
-        int num_lines;      // Número de linhas a exibir (padrão 10)
-        bool show_line_num; // -n: Mostrar o número da linha original
-        bool show_end_line; // -E: Mostrar $ no fim de cada linha
+        int num_lines;      // number of lines to display (default 10)
+        bool show_line_num; // -n: show original line number
+        bool show_end_line; // -E: show $ at end of each line
 } TailOptions;
 
 /**
- * @brief Exibe a ajuda integrada do utilitário tail (requisito -h).
+ * @brief Prints the built-in help for the tail utility (-h flag).
  */
 static void print_usage(void)
 {
@@ -31,13 +31,11 @@ static void print_usage(void)
 }
 
 /**
- * @brief Processa o comando tail num fluxo de entrada usando um buffer
- * circular.
- * @param fp Ponteiro para o ficheiro ou stdin.
- * @param filename Nome do ficheiro (para o cabeçalho).
- * @param opts Opções de configuração.
- * @param print_header Se deve imprimir o nome do ficheiro (múltiplos
- * ficheiros).
+ * @brief Processes the tail command on an input stream using a circular buffer.
+ * @param fp Pointer to the file or stdin.
+ * @param filename Filename (for the header line).
+ * @param opts Configuration options.
+ * @param print_header Whether to print the filename header (multiple files).
  */
 static void process_tail(
     FILE* fp,
@@ -51,7 +49,7 @@ static void process_tail(
         printf("==> %s <==\n", filename);
     }
 
-    // Aloca um array para guardar os ponteiros das linhas (buffer circular)
+    // allocate array to hold line pointers (circular buffer)
     char** buffer = calloc(opts->num_lines, sizeof(char*));
     int* line_numbers = calloc(opts->num_lines, sizeof(int));
 
@@ -64,13 +62,12 @@ static void process_tail(
     int total_lines_read = 0;
     int index = 0;
 
-    // Lê o ficheiro inteiro, guardando apenas as últimas N linhas
+    // read the entire file, keeping only the last N lines
     while ((current_line = line_read(fp)) != NULL)
     {
         total_lines_read++;
 
-        // Se a posição já tinha uma linha (buffer cheio), liberta a memória
-        // antiga
+        // if this slot already held a line (buffer full), free the old memory
         if (buffer[index])
         {
             free(buffer[index]);
@@ -79,11 +76,11 @@ static void process_tail(
         buffer[index] = current_line;
         line_numbers[index] = total_lines_read;
 
-        // Avança o índice de forma circular
+        // advance index circularly
         index = (index + 1) % opts->num_lines;
     }
 
-    // Determina onde começar a imprimir (a linha mais antiga no buffer)
+    // find the oldest entry in the buffer to start printing from
     int start_index = total_lines_read > opts->num_lines ? index : 0;
     int lines_to_print =
         total_lines_read > opts->num_lines ? opts->num_lines : total_lines_read;
@@ -113,7 +110,7 @@ static void process_tail(
 }
 
 /**
- * @brief Ponto de entrada do utilitário tail.
+ * @brief Entry point for the tail utility.
  */
 int main(int argc, char* argv[])
 {

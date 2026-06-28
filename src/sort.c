@@ -6,7 +6,7 @@
 
 /**
  * @struct Line
- * @brief Estrutura para representar uma linha de texto.
+ * @brief Represents a single line of text.
  */
 typedef struct
 {
@@ -15,15 +15,15 @@ typedef struct
 
 /**
  * @struct SortOptions
- * @brief Agrupa as opções de configuração do utilitário sort.
+ * @brief Configuration options for the sort utility.
  */
 typedef struct
 {
-        bool reverse; // -d: Ordenação decrescente
+        bool reverse; // -d: descending sort
 } SortOptions;
 
 /**
- * @brief Exibe a ajuda integrada do utilitário sort (requisito -h).
+ * @brief Prints the built-in help for the sort utility (-h flag).
  */
 static void print_usage(void)
 {
@@ -35,7 +35,7 @@ static void print_usage(void)
 }
 
 /**
- * @brief Comparador para ordenação ascendente (strcmp).
+ * @brief Comparator for ascending order (strcmp).
  */
 static int compare_asc(const void* a, const void* b)
 {
@@ -43,7 +43,7 @@ static int compare_asc(const void* a, const void* b)
 }
 
 /**
- * @brief Comparador para ordenação descendente (strcmp invertido).
+ * @brief Comparator for descending order (reversed strcmp).
  */
 static int compare_desc(const void* a, const void* b)
 {
@@ -51,9 +51,9 @@ static int compare_desc(const void* a, const void* b)
 }
 
 /**
- * @brief Processa a ordenação de um ficheiro individual.
- * @param filename Nome do ficheiro a ordenar.
- * @param opts Opções de configuração.
+ * @brief Sorts a single file.
+ * @param filename Name of the file to sort.
+ * @param opts Configuration options.
  */
 static void sort_file(const char* filename, const SortOptions* opts)
 {
@@ -68,7 +68,7 @@ static void sort_file(const char* filename, const SortOptions* opts)
     int count = 0;
     char* line_content;
 
-    // Carrega todas as linhas para a memória dinamicamente
+    // load all lines into memory dynamically
     while ((line_content = line_read(fp)) != NULL)
     {
         Line* tmp = realloc(lines, sizeof(Line) * (count + 1));
@@ -86,12 +86,12 @@ static void sort_file(const char* filename, const SortOptions* opts)
     if (count == 0)
         return;
 
-    // Ordenação in-place usando qsort
+    // in-place sort using qsort
     qsort(
         lines, count, sizeof(Line), opts->reverse ? compare_desc : compare_asc
     );
 
-    // Constrói o nome do ficheiro de saída (original.sort)
+    // build the output filename (original.sort)
     char out_name[1024];
     snprintf(out_name, sizeof(out_name), "%s.sort", filename);
 
@@ -109,7 +109,7 @@ static void sort_file(const char* filename, const SortOptions* opts)
         fclose(out_fp);
     }
 
-    // Libertação de memória
+    // free memory
     for (int i = 0; i < count; i++)
     {
         free(lines[i].text);
@@ -118,7 +118,7 @@ static void sort_file(const char* filename, const SortOptions* opts)
 }
 
 /**
- * @brief Ponto de entrada do utilitário sort.
+ * @brief Entry point for the sort utility.
  */
 int main(int argc, char** argv)
 {

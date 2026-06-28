@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 /**
- * @brief Exibe a ajuda integrada do utilitário kill (requisito -h).
+ * @brief Prints the built-in help for the kill utility (-h flag).
  */
 static void print_usage(void)
 {
@@ -18,7 +18,7 @@ static void print_usage(void)
 }
 
 /**
- * @brief Ponto de entrada do utilitário kill.
+ * @brief Entry point for the kill utility.
  */
 int main(int argc, char** argv)
 {
@@ -37,20 +37,20 @@ int main(int argc, char** argv)
         }
     }
 
-    // Verifica se foi passado o PID após as opções
+    // ensure a PID was provided after the options
     if (opt_index >= argc)
     {
         usage("PID");
     }
 
-    // Converte o argumento para PID
+    // convert the argument to a PID
     pid_t pid = (pid_t)atoi(argv[opt_index]);
     if (pid <= 0)
     {
         error_msg("PID inválido. Deve ser um número inteiro positivo.");
     }
 
-    // Envia o sinal SIGTERM (término amigável) ao processo
+    // send SIGTERM (graceful termination) to the process
     if (kill(pid, SIGTERM) == -1)
     {
         // die utiliza perror internamente para detalhar a falha (ex: No such

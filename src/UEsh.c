@@ -12,7 +12,7 @@
 #define MAX_ARGS 64
 
 /**
- * @brief Exibe a ajuda integrada do utilitário UEsh.
+ * @brief Prints the built-in help for the UEsh shell (-h flag).
  */
 static void print_usage(void)
 {
@@ -29,8 +29,8 @@ static void print_usage(void)
 }
 
 /**
- * @brief Adiciona dinamicamente a pasta raiz dos executáveis ao PATH da shell.
- * @param executable_path O caminho argv[0] originado na execução.
+ * @brief Dynamically prepends the executable directory to PATH.
+ * @param executable_path The argv[0] path passed at startup.
  */
 static void setup_environment(const char* executable_path)
 {
@@ -63,7 +63,7 @@ static void setup_environment(const char* executable_path)
 }
 
 /**
- * @brief Constroi e imprime o prompt visual da shell.
+ * @brief Builds and prints the shell prompt.
  */
 static void print_prompt(void)
 {
@@ -86,10 +86,9 @@ static void print_prompt(void)
 }
 
 /**
- * @brief Lê de forma segura uma linha inteira fornecida pelo utilizador usando
- * line_read.
- * @param line Ponteiro para o ponteiro da string.
- * @return true caso tenha lido com sucesso; false caso encontre EOF.
+ * @brief Safely reads a full line from the user via line_read.
+ * @param line Pointer to the string pointer.
+ * @return true on success; false on EOF.
  */
 static bool read_line(char** line)
 {
@@ -102,10 +101,10 @@ static bool read_line(char** line)
 }
 
 /**
- * @brief Quebra a string completa capturada em múltiplos tokens.
- * @param line A string contendo o texto cru do terminal.
- * @param args O array de ponteiros que receberão os tokens quebrados.
- * @return O número de tokens encontrados.
+ * @brief Splits the raw input line into tokens.
+ * @param line The raw input string from the terminal.
+ * @param args Array of pointers to receive the parsed tokens.
+ * @return Number of tokens found.
  */
 static int parse_line(char* line, char** args)
 {
@@ -120,8 +119,8 @@ static int parse_line(char* line, char** args)
 }
 
 /**
- * @brief Altera o diretório de trabalho atual.
- * @param args Array de argumentos (args[1] é o destino).
+ * @brief Changes the current working directory.
+ * @param args Argument array (args[1] is the target directory).
  */
 static void builtin_cd(char** args)
 {
@@ -133,7 +132,7 @@ static void builtin_cd(char** args)
 }
 
 /**
- * @brief Exibe o diretório de trabalho atual.
+ * @brief Prints the current working directory.
  */
 static void builtin_pwd(void)
 {
@@ -149,8 +148,8 @@ static void builtin_pwd(void)
 }
 
 /**
- * @brief Imprime texto no ecrã.
- * @param args Array de strings a serem impressas.
+ * @brief Prints text to stdout.
+ * @param args Array of strings to print.
  */
 static void builtin_echo(char** args)
 {
@@ -162,8 +161,8 @@ static void builtin_echo(char** args)
 }
 
 /**
- * @brief Suspende a execução por um determinado tempo.
- * @param args Array contendo os segundos em args[1].
+ * @brief Suspends execution for a specified number of seconds.
+ * @param args Argument array with seconds in args[1].
  */
 static void builtin_sleep(char** args)
 {
@@ -180,10 +179,11 @@ static void builtin_sleep(char** args)
 }
 
 /**
- * @brief Verifica e processa comandos built-in (cd, pwd, echo, sleep, exit).
- * @param args A lista de argumentos do input de usuário.
- * @param running Ponteiro para flag de execução do loop principal.
- * @return true se era comando interno, false se era comando externo.
+ * @brief Checks for and executes built-in commands (cd, pwd, echo, sleep,
+ * exit).
+ * @param args Argument list from user input.
+ * @param running Pointer to the main loop running flag.
+ * @return true if a built-in was matched, false if it is an external command.
  */
 static bool execute_builtin(char** args, bool* running)
 {
@@ -216,8 +216,8 @@ static bool execute_builtin(char** args, bool* running)
 }
 
 /**
- * @brief Invoca processos externos via fork e execvp.
- * @param args A lista de argumentos contendo o utilitário em args[0].
+ * @brief Invokes external processes via fork and execvp.
+ * @param args Argument list with the utility name in args[0].
  */
 static void execute_external(char** args)
 {
@@ -247,11 +247,10 @@ static void execute_external(char** args)
 }
 
 /**
- * @brief Ponto central de inicialização do projeto e loop eterno da interface
- * CLI.
- * @param argc O número de argumentos vindos do bash inicial.
- * @param argv Os apontadores de char contendo as flags recebidas.
- * @return Estado de execução retornado ao fim do loop.
+ * @brief Main entry point; sets up the environment and runs the CLI loop.
+ * @param argc Argument count from the calling shell.
+ * @param argv Argument array with the received flags.
+ * @return Exit status returned after the loop ends.
  */
 int main(int argc, char* argv[])
 {

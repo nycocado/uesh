@@ -7,17 +7,17 @@
 
 /**
  * @struct HeadOptions
- * @brief Agrupa as opções de configuração do utilitário head.
+ * @brief Configuration options for the head utility.
  */
 typedef struct
 {
-        int num_lines;      // Número de linhas a exibir (padrão 10)
-        bool show_line_num; // -n: Mostrar o número da linha
-        bool show_end_line; // -E: Mostrar $ no fim de cada linha
+        int num_lines;      // number of lines to display (default 10)
+        bool show_line_num; // -n: show line number
+        bool show_end_line; // -E: show $ at end of each line
 } HeadOptions;
 
 /**
- * @brief Exibe a ajuda integrada do utilitário head (requisito -h).
+ * @brief Prints the built-in help for the head utility (-h flag).
  */
 static void print_usage(void)
 {
@@ -31,12 +31,11 @@ static void print_usage(void)
 }
 
 /**
- * @brief Processa o comando head num fluxo de entrada.
- * @param fp Ponteiro para o ficheiro ou stdin.
- * @param filename Nome do ficheiro (para o cabeçalho).
- * @param opts Opções de configuração.
- * @param print_header Se deve imprimir o nome do ficheiro (múltiplos
- * ficheiros).
+ * @brief Processes the head command on an input stream.
+ * @param fp Pointer to the file or stdin.
+ * @param filename Filename (for the header line).
+ * @param opts Configuration options.
+ * @param print_header Whether to print the filename header (multiple files).
  */
 static void process_head(
     FILE* fp,
@@ -72,7 +71,7 @@ static void process_head(
 }
 
 /**
- * @brief Ponto de entrada do utilitário head.
+ * @brief Entry point for the head utility.
  */
 int main(int argc, char* argv[])
 {

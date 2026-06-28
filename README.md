@@ -1,46 +1,69 @@
-# Projeto de Sistemas Operativos: Utilitários UNIX em C
+# uesh
 
-Este repositório contém o código-fonte desenvolvido para o projeto prático da unidade curricular de Sistemas Operativos. O objetivo central é a implementação de um conjunto de comandos e utilitários clássicos do ambiente UNIX, operando nativamente em sistema operativo Linux e desenvolvidos integralmente em Linguagem C.
+UNIX utilities and shell interpreter in C — sort, ls, tail, head, grep, replace, cp, kill, and a custom shell (UEsh), built for the Operating Systems course.
 
-## Estrutura do Projeto
+[![License: MIT](https://img.shields.io/badge/License-MIT-3da639.svg)](LICENSE)
+![Status](https://img.shields.io/badge/status-completed-6f42c1)
 
-O desenvolvimento foi pautado pela modularização e reaproveitamento de código. Para evitar a duplicação de esforço, foi criada uma biblioteca de funções genéricas utilizada por todos os comandos para tarefas como o parsing de argumentos e o tratamento de erros.
+[![C](https://img.shields.io/badge/C-00599C?logo=c&logoColor=white)](https://en.cppreference.com/w/c)
+[![Make](https://img.shields.io/badge/Make-4495D5?logo=make&logoColor=white)](https://www.gnu.org/software/make/)
 
-* `/src`: Contém o código-fonte principal de cada utilitário e da Shell.
-* `/lib`: Contém os ficheiros de cabeçalho (`.h`) e a implementação (`.c`) das funções comuns.
-* `Makefile`: Script de automação para compilar todos os comandos simultaneamente, garantindo um processo de build limpo.
+[Portuguese](README.pt.md) | English
 
-## Comandos Implementados
+## About
 
-O projeto é composto por 9 utilitários no total (3 obrigatórios e 6 opcionais selecionados pelo grupo). Todos os comandos suportam a flag `-h`, que apresenta a sintaxe de uso e o objetivo principal do programa, encerrando a execução imediatamente.
+Implementation of 9 classic UNIX utilities and a custom shell interpreter for the Operating Systems course. All utilities share a common library (`lib/common.c`) for argument parsing and error handling. Developed natively for Linux.
 
-### Interpretador Central
+## Utilities
 
-* **UEsh**: Interpretador de comandos (Shell) com prompt personalizada. Suporta a invocação dos comandos externos desenvolvidos neste projeto e implementa nativamente os comandos internos: `cd`, `pwd`, `echo`, `sleep` e `exit`.
+### Shell
 
-### Comandos Obrigatórios
+| Utility | Description |
+| ------- | ----------- |
+| **UEsh** | Shell interpreter with a custom prompt. Supports external utilities and built-in commands: `cd`, `pwd`, `echo`, `sleep`, `exit`. |
 
-* **sort**: Ordena ficheiros de texto. Suporta ordenação decrescente com a opção `-d`.
-* **ls**: Lista os nomes dos ficheiros contidos num diretório. Suporta listagem longa (`-1`), listagem por colunas (`-c`) e ordenação dinâmica do output (`-ox`).
+### Required
 
-### Comandos Opcionais
+| Utility | Description |
+| ------- | ----------- |
+| **sort** | Sorts text files. Supports descending order (`-d`). Writes output to `FILE.sort`. |
+| **ls** | Lists directory contents. Supports long format (`-l`), column layout (`-c`), and sort by name, size, or date (`-on`, `-os`, `-od`). |
+| **grep** | Searches for strings in files. Supports case-insensitive search (`-i`), line numbers (`-n`), match count (`-c`), and inverted match (`-v`). |
 
-* **tail**: Lista as últimas linhas de um ficheiro de texto (suporta `-n`, `-E` e indicação do número de linhas).
-* **head**: Lista as primeiras linhas de um ficheiro de texto (suporta `-n`, `-E` e indicação do número de linhas).
-* **grep**: Procura strings dentro de ficheiros. Suporta ignorar maiúsculas/minúsculas (`-i`), numeração de linhas (`-n`), contagem de ocorrências (`-c`) e pesquisa invertida (`-v`).
-* **replace**: Procura uma string dentro de ficheiros e substitui por outra, processando múltiplos ficheiros paralelamente (via fork).
-* **cp**: Efetua a cópia de ficheiros da origem para um destino, suportando o modo interativo (`-i`).
-* **kill**: Termina um processo ativo no sistema através do respetivo identificador (PID).
+### Optional
 
-## Pré-requisitos e Ambiente
+| Utility | Description |
+| ------- | ----------- |
+| **tail** | Prints the last N lines of a text file. Supports `-n`, `-E`, and a numeric count flag. |
+| **head** | Prints the first N lines of a text file. Supports `-n`, `-E`, and a numeric count flag. |
+| **replace** | Replaces a string in files, processing each file in a separate child process (`fork`). Supports `-c`, `-n`, `-i`. |
+| **cp** | Copies a file to a destination. Supports interactive mode (`-i`). |
+| **kill** | Terminates a process by PID via `SIGTERM`. |
 
-* **Sistema Operativo**: Linux. O desenvolvimento ou execução nativa em MacOS não é suportada.
-* **Compilador**: GCC.
-* **Ferramentas**: Make.
+## Requirements
 
-## Compilação e Execução
+| Tool | Minimum version |
+| ---- | --------------- |
+| GCC  | 9+              |
+| Make | 4+              |
 
-Para compilar todo o projeto, navegue até à pasta raiz do repositório e execute o comando:
+Linux only — native macOS execution is not supported.
+
+## How to run
 
 ```bash
-make
+make          # compile all utilities
+make run      # compile and launch UEsh
+make valgrind # run UEsh under valgrind
+make clean    # remove build artifacts
+```
+
+Binaries are placed in `bin/`. All utilities support `-h` for usage help.
+
+## License
+
+Distributed under the **MIT** license, © 2026 Nycolas Souza.
+
+It is a permissive license: anyone can use, copy, modify, and distribute the code, including in commercial projects, as long as the copyright notice and license text are retained.
+
+The full text is in [LICENSE](LICENSE).

@@ -6,10 +6,10 @@
 #include <string.h>
 
 char* program_name = "program";
-int opt_index = 1;    // Começa no primeiro argumento após o nome do programa
-char* opt_arg = NULL; // Guarda o valor do argumento da flag, se houver
+int opt_index = 1;    // starts at the first argument after the program name
+char* opt_arg = NULL; // holds the option argument value, if any
 static int char_idx =
-    1; // Índice do caractere dentro de um grupo de flags (ex: -abc)
+    1; // index of character within a flag group (e.g. -abc)
 
 char* str_case_find(const char* haystack, const char* needle)
 {
@@ -88,13 +88,13 @@ char next_option(int argc, char* argv[], const char* optstring)
         return '\0';
     }
 
-    // Suporte para flags numéricas (ex: -10) se a optstring contiver '#'
+    // support for numeric flags (e.g. -10) when optstring contains '#'
     if (isdigit(argv[opt_index][1]) && strchr(optstring, '#') != NULL)
     {
         opt_arg =
-            &argv[opt_index][1]; // opt_arg aponta para o número (ex: "10")
+            &argv[opt_index][1]; // opt_arg points to the number (e.g. "10")
         opt_index++;
-        return '#'; // Retorna o caractere especial
+        return '#'; // returns the special character
     }
 
     char c = argv[opt_index][char_idx];
@@ -111,26 +111,26 @@ char next_option(int argc, char* argv[], const char* optstring)
         return '?';
     }
 
-    // Verifica se a opção exige um argumento (indicado por ':')
+    // check if the option requires an argument (indicated by ':')
     if (ptr[1] == ':')
     {
         if (argv[opt_index][char_idx + 1] != '\0')
         {
-            // Argumento colado à flag (ex: -on ou -oN)
+            // argument attached to flag (e.g. -on or -oN)
             opt_arg = &argv[opt_index][char_idx + 1];
             opt_index++;
             char_idx = 1;
         }
         else if (opt_index + 1 < argc)
         {
-            // Argumento separado por espaço (ex: -o n)
+            // argument separated by space (e.g. -o n)
             opt_arg = argv[opt_index + 1];
             opt_index += 2;
             char_idx = 1;
         }
         else
         {
-            // Erro: Faltou o argumento
+            // error: missing argument
             opt_index++;
             char_idx = 1;
             return ':';
@@ -138,7 +138,7 @@ char next_option(int argc, char* argv[], const char* optstring)
     }
     else
     {
-        // Opção normal sem argumento
+        // normal option with no argument
         char_idx++;
         if (argv[opt_index][char_idx] == '\0')
         {

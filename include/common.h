@@ -5,69 +5,68 @@
 #include <stdio.h>
 
 /**
- * @brief Procura uma substring ignorando maiúsculas/minúsculas.
- * @param haystack String onde procurar.
- * @param needle String a ser procurada.
- * @return Ponteiro para a ocorrência ou NULL se não encontrar.
+ * @brief Searches for a substring, case-insensitively.
+ * @param haystack String to search in.
+ * @param needle String to search for.
+ * @return Pointer to the match, or NULL if not found.
  */
 char* str_case_find(const char* haystack, const char* needle);
 
 /**
- * @brief Lê uma linha completa de um ficheiro com alocação dinâmica manual.
- * @param stream O ficheiro ou fluxo de entrada (stdin).
- * @return Ponteiro para a linha lida (deve ser libertado com free) ou NULL em
- * caso de erro ou EOF.
+ * @brief Reads a full line from a file using manual dynamic allocation.
+ * @param stream File or input stream (stdin).
+ * @return Pointer to the line read (must be freed with free), or NULL on error
+ * or EOF.
  */
 char* line_read(FILE* stream);
 
 /**
- * @brief Nome do programa atual (deve ser definido no main de cada utilitário).
+ * @brief Current program name (must be set in each utility's main).
  */
 extern char* program_name;
 
 /**
- * @brief Exibe uma mensagem de erro do sistema (perror) mas não encerra o
- * programa.
- * @param msg Mensagem de contexto do erro.
+ * @brief Prints a system error message (perror) without terminating the
+ * program.
+ * @param msg Error context message.
  */
 void warn(const char* msg);
 
 /**
- * @brief Finaliza o programa com uma mensagem de erro do sistema (perror).
- * @param msg Mensagem de contexto do erro.
+ * @brief Terminates the program with a system error message (perror).
+ * @param msg Error context message.
  */
 void die(const char* msg);
 
 /**
- * @brief Exibe uma mensagem de erro customizada e encerra o programa.
- * @param msg Mensagem de erro.
+ * @brief Prints a custom error message and exits the program.
+ * @param msg Error message.
  */
 void error_msg(const char* msg);
 
 /**
- * @brief Índice do próximo argumento a ser processado (semelhante ao optind).
+ * @brief Index of the next argument to process (similar to optind).
  */
 extern int opt_index;
 
 /**
- * @brief Guarda o valor do argumento de uma opção, caso exista (semelhante ao
- * optarg).
+ * @brief Holds the value of an option's argument, if any (similar to optarg).
  */
 extern char* opt_arg;
 
 /**
- * @brief Processa o próximo caractere de opção no argv.
- * @param argc Número de argumentos.
- * @param argv Array de argumentos.
- * @param optstring String contendo os caracteres de opção válidos.
- * @return O caractere da opção encontrada, '?' para opção inválida, ou '\0'
- * quando terminarem as opções.
+ * @brief Processes the next option character in argv.
+ * @param argc Argument count.
+ * @param argv Argument array.
+ * @param optstring String of valid option characters.
+ * @return The found option character, '?' for invalid option, or '\0' when
+ * options end.
  */
 char next_option(int argc, char* argv[], const char* optstring);
 
 /**
- * @brief Exibe a sintaxe de uso padrão e encerra o programa.
- * @param usage_str String contendo os argumentos (ex: "[OPÇÕES] PADRÃO
- * [FICHEIRO]").
+ * @brief Prints the standard usage message and exits the program.
+ * @param usage_str String with expected arguments (e.g. "[OPTIONS] PATTERN
+ * [FILE]").
  */
 void usage(const char* usage_str);

@@ -14,7 +14,7 @@
 
 /**
  * @struct FileInfo
- * @brief Metadados básicos de um ficheiro para ordenação e listagem.
+ * @brief Basic file metadata used for sorting and listing.
  */
 typedef struct
 {
@@ -25,21 +25,20 @@ typedef struct
 
 /**
  * @struct LsOptions
- * @brief Opções de configuração do utilitário ls.
+ * @brief Configuration options for the ls utility.
  */
 typedef struct
 {
-        bool long_format; // -l: Listagem detalhada
-        char sort_by;     // 'n': nome, 's': tamanho, 'd': data
-        bool columns;     // -c: Listagem em colunas
+        bool long_format; // -l: detailed listing
+        char sort_by;     // 'n': name, 's': size, 'd': date
+        bool columns;     // -c: column listing
 } LsOptions;
 
-// Variável global auxiliar para o comparador do qsort (evita qsort_r
-// não-standard)
+// global helper for qsort comparator (avoids non-standard qsort_r)
 static char current_sort_mode = 'n';
 
 /**
- * @brief Exibe a ajuda integrada do utilitário ls (requisito -h).
+ * @brief Prints the built-in help for the ls utility (-h flag).
  */
 static void print_usage(void)
 {
@@ -55,7 +54,7 @@ static void print_usage(void)
 }
 
 /**
- * @brief Função de comparação para o qsort baseada no critério selecionado.
+ * @brief Comparison function for qsort based on the selected criterion.
  */
 static int compare_files(const void* a, const void* b)
 {
@@ -82,9 +81,9 @@ static int compare_files(const void* a, const void* b)
 }
 
 /**
- * @brief Imprime metadados detalhados de um ficheiro (formato longo).
- * @param path Caminho do diretório pai.
- * @param name Nome do ficheiro.
+ * @brief Prints detailed metadata for a file (long format).
+ * @param path Path to the parent directory.
+ * @param name Filename.
  */
 static void print_long(const char* path, const char* name)
 {
@@ -116,9 +115,9 @@ static void print_long(const char* path, const char* name)
 }
 
 /**
- * @brief Lista o conteúdo de um diretório aplicando ordenação e formatação.
- * @param path Caminho do diretório.
- * @param opts Opções configuradas.
+ * @brief Lists directory contents with sorting and formatting applied.
+ * @param path Directory path.
+ * @param opts Configuration options.
  */
 static void list_dir(const char* path, const LsOptions* opts)
 {
@@ -135,7 +134,7 @@ static void list_dir(const char* path, const LsOptions* opts)
 
     while ((entry = readdir(dir)) != NULL)
     {
-        // Ignorar ficheiros ocultos por padrão
+        // skip hidden files by default
         if (entry->d_name[0] == '.')
             continue;
 
@@ -198,7 +197,7 @@ static void list_dir(const char* path, const LsOptions* opts)
 }
 
 /**
- * @brief Ponto de entrada do utilitário ls.
+ * @brief Entry point for the ls utility.
  */
 int main(int argc, char** argv)
 {
